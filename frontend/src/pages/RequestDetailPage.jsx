@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import api from '../lib/axios'
+import api, { fileBaseURL } from '../lib/axios'
+
+const fullPath = (p) => p?.startsWith('http') ? p : `${fileBaseURL}${p}`
 import { useAuth } from '../context/AuthContext'
 import StatusBadge from '../components/StatusBadge'
 import Timeline from '../components/Timeline'
@@ -85,7 +87,7 @@ function AttachmentsSection({ requestId, attachments, canUpload, onReload }) {
               <li key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-el-soft group transition-colors"
                 style={{ border: '1px solid var(--el-line)' }}>
                 {isImage ? (
-                  <img src={a.filePath} alt={a.filename}
+                  <img src={fullPath(a.filePath)} alt={a.filename}
                     className="w-10 h-10 object-cover rounded-lg flex-shrink-0 cursor-pointer"
                     style={{ border: '1px solid var(--el-line)' }}
                     onClick={() => setPreview(a)} />
@@ -97,7 +99,7 @@ function AttachmentsSection({ requestId, attachments, canUpload, onReload }) {
                   <p className="text-xs" style={{ color: 'var(--el-muted)' }}>{formatSize(a.fileSize)} · {dayjs(a.uploadedAt).format('D/M/YYYY HH:mm')}</p>
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <a href={a.filePath} download={a.filename}
+                  <a href={fullPath(a.filePath)} download={a.filename}
                     className="p-1.5 rounded-lg transition-colors hover:bg-el-soft"
                     style={{ color: 'var(--el-muted)' }} title="ดาวน์โหลด">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
@@ -120,7 +122,7 @@ function AttachmentsSection({ requestId, attachments, canUpload, onReload }) {
       {preview && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setPreview(null)}>
           <div className="relative max-w-3xl max-h-[90vh]" onClick={e => e.stopPropagation()}>
-            <img src={preview.filePath} alt={preview.filename} className="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl" />
+            <img src={fullPath(preview.filePath)} alt={preview.filename} className="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl" />
             <button onClick={() => setPreview(null)}
               className="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg text-gray-600 hover:text-gray-900">✕</button>
             <p className="text-white text-sm text-center mt-2 opacity-75">{preview.filename}</p>
