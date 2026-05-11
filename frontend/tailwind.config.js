@@ -4,33 +4,23 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Sarabun', 'sans-serif'],
+        sans: [
+          '-apple-system', 'BlinkMacSystemFont',
+          '"SF Pro Text"', '"SF Pro Display"', '"SF Pro"',
+          '"Helvetica Neue"', '"Segoe UI"', 'Roboto',
+          '"Sukhumvit Set"', '"Thonburi"', '"Noto Sans Thai"', '"Leelawadee UI"',
+          'system-ui', 'sans-serif',
+        ],
       },
       colors: {
-        // Override blue palette → Royal Blue theme (#2B3DE8)
-        blue: {
-          50:  '#EEF0FD',
-          100: '#D5D9FB',
-          200: '#ABB3F7',
-          300: '#808EF3',
-          400: '#5668EF',
-          500: '#3348E6',
-          600: '#2B3DE8',
-          700: '#2233CC',
-          800: '#1A29B0',
-          900: '#121E8F',
-          950: '#0D1578',
-        },
-        // Teal accent
-        teal: {
-          400: '#4ECDC4',
-          500: '#3BBDB5',
-        },
-        // Gold accent
-        gold: {
-          400: '#F0C050',
-          500: '#DBA830',
-        },
+        'el-pink':  '#ff2e7e',
+        'el-cyan':  '#00e0ff',
+        'el-amber': '#ffd23f',
+        'el-ink':   '#0a0d2e',
+        'el-ink2':  '#1a1f4a',
+        'el-muted': '#6b7390',
+        'el-line':  '#e8eaf3',
+        'el-soft':  '#f5f6fb',
       },
     },
   },

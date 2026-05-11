@@ -52,6 +52,7 @@ router.post('/', authenticate, requireRole('admin'), async (req, res, next) => {
           create: steps.map(s => ({
             order: s.order,
             name: s.name,
+            stepType: s.stepType || 'sequential',
             approvers: { create: s.approverIds.map(uid => ({ userId: Number(uid) })) },
           })),
         },
@@ -90,6 +91,7 @@ router.put('/:id', authenticate, requireRole('admin'), async (req, res, next) =>
           create: steps.map(s => ({
             order: s.order,
             name: s.name,
+            stepType: s.stepType || 'sequential',
             approvers: { create: s.approverIds.map(uid => ({ userId: Number(uid) })) },
           })),
         },

@@ -2,21 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Sarabun';
-  src: url('/fonts/Sarabun-Thin.ttf') format('truetype');
-  font-weight: 100;
-  font-style: normal;
+/* ============================================================
+   Light Electric Theme — Workflow App
+   ============================================================ */
+:root {
+  --el-pink: #ff2e7e;
+  --el-cyan: #00e0ff;
+  --el-amber: #ffd23f;
+  --el-ink: #0a0d2e;
+  --el-ink-2: #1a1f4a;
+  --el-muted: #6b7390;
+  --el-line: #e8eaf3;
+  --el-soft: #f5f6fb;
+  --el-pink-soft: #fff0f6;
+  --el-cyan-soft: #e6fbff;
+  --el-amber-soft: #fff8e0;
+
+  --font-main: 'Anuphan', system-ui, sans-serif;
 }
 
-@font-face {
-  font-family: 'Sarabun';
-  src: url('/fonts/Sarabun-ThinItalic.ttf') format('truetype');
-  font-weight: 100;
-  font-style: italic;
+html {
+  font-family: var(--font-main);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern", "liga";
+  letter-spacing: 0;
+}
+body { font-family: inherit; font-weight: 400; font-synthesis: none; color: var(--el-ink); }
+*, *::before, *::after, input, textarea, select, button, optgroup { font-family: inherit; }
+h1, h2, h3, h4, h5, h6 { letter-spacing: -0.015em; font-weight: 700; }
+
+/* ---------- Main content background ---------- */
+.el-bg {
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(255, 46, 126, 0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 0% 100%, rgba(0, 224, 255, 0.05) 0%, transparent 40%),
+    #f8f9fe;
 }
 
-* {
-  font-family: 'Sarabun', sans-serif;
-  font-weight: 100;
+/* ---------- Reusable Electric components ---------- */
+.el-btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0 20px; height: 42px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--el-pink), var(--el-cyan));
+  color: white; font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 14px -4px rgba(255, 46, 126, 0.22),
+              inset 0 0 0 1px rgba(255,255,255,0.15);
+  transition: transform .15s, opacity .15s;
 }
+.el-btn-primary:hover:not(:disabled) { transform: translateY(-1px); opacity: 0.92; }
+.el-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.el-card {
+  background: white;
+  border: 1px solid var(--el-line);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(10,13,46,0.04);
+}
+
+.el-input {
+  height: 42px; padding: 0 14px; border-radius: 10px;
+  background: var(--el-soft); border: 1.5px solid transparent;
+  font-size: 14px; color: var(--el-ink); outline: none; width: 100%;
+  transition: border-color .15s, box-shadow .15s;
+}
+.el-input:focus { background: white; border-color: var(--el-cyan); box-shadow: 0 0 0 3px rgba(0,224,255,0.14); }
+.el-input::placeholder { color: var(--el-muted); }
+
+.el-textarea {
+  padding: 12px 16px; border-radius: 10px;
+  background: var(--el-soft); border: 1.5px solid transparent;
+  font-size: 15px; color: var(--el-ink); outline: none; width: 100%;
+  transition: border-color .15s, box-shadow .15s; resize: vertical;
+}
+.el-textarea:focus { background: white; border-color: var(--el-cyan); box-shadow: 0 0 0 3px rgba(0,224,255,0.14); }
+.el-textarea::placeholder { color: var(--el-muted); }
+
+.el-chip {
+  padding: 0 14px; height: 32px;
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 999px; font-size: 13px; font-weight: 600;
+  background: white; border: 1px solid var(--el-line); color: var(--el-muted);
+  cursor: pointer; transition: all .15s;
+}
+.el-chip:hover { border-color: var(--el-pink); color: var(--el-pink); }
+.el-chip.active { background: var(--el-ink); color: white; border-color: var(--el-ink); }
+.el-chip .count {
+  background: var(--el-soft); color: var(--el-ink);
+  padding: 1px 7px; border-radius: 8px; font-size: 12px;
+}
+.el-chip.active .count { background: rgba(255,255,255,0.15); color: white; }
+
+.el-section-title {
+  font-size: 15px; font-weight: 700; color: var(--el-ink);
+  display: flex; align-items: center; gap: 8px;
+}
+.el-section-title::before {
+  content: ''; width: 3px; height: 14px; border-radius: 2px;
+  background: linear-gradient(var(--el-pink), var(--el-cyan));
+  flex-shrink: 0;
+}
+
+.el-eyebrow {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  background: linear-gradient(90deg, var(--el-pink), var(--el-cyan));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin-bottom: 4px;
+}
+
+/* ---------- Status badges ---------- */
+.el-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 13px; font-weight: 600;
+}
+.el-badge-pending   { background: var(--el-pink-soft);  color: var(--el-pink); }
+.el-badge-approved  { background: var(--el-cyan-soft);  color: #0099b3; }
+.el-badge-rejected  { background: #fee2e2;              color: #dc2626; }
+.el-badge-returned  { background: var(--el-amber-soft); color: #b97600; }
+.el-badge-draft     { background: #f1f5f9;              color: #64748b; }
+.el-badge-cancelled { background: #f1f5f9;              color: #94a3b8; }

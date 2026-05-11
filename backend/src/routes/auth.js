@@ -44,4 +44,57 @@ router.patch('/me', authenticate, async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
+// PATCH /api/auth/me/delegate — set delegate
+router.patch('/me/delegate', authenticate, async (req, res, next) => {
+  try {
+    const { delegateToId, delegateFromDate, delegateToDate } = req.body
+    if (!delegateToId || !delegateFromDate || !delegateToDate) {
+      return res.status(400).json({ error: 'กรุณาระบุผู้รับมอบหมายและช่วงวันที่' })
+    }
+    if (Number(delegateToId) === req.user.id) {
+      return res.status(400).json({ error: 'ไม่สามารถมอบหมายให้ตัวเองได้' })
+    }
+    const target = await prisma.user.findUnique({ where: { id: Number(delegateToId) } })
+    if (!target || !target.isActive) return res.status(400).json({ error: 'ไม่พบผู้ใช้ที่ระบุ' })
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: {
+        delegateToId: Number(delegateToId),
+        delegateFromDate: new Date(delegateFromDate),
+        delegateToDate: new Date(delegateToDate),
+      },
+    })
+    const { passwordHash, ...userSafe } = user
+    res.json(userSafe)
+  } catch (err) { next(err) }
+})
+
+// DELETE /api/auth/me/delegate — cancel delegate
+router.delete('/me/delegate', authenticate, async (req, res, next) => {
+  try {
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { delegateToId: null, delegateFromDate: null, delegateToDate: null },
+    })
+    res.json({ message: 'ยกเลิกการมอบหมายเรียบร้อยแล้ว' })
+  } catch (err) { next(err) }
+})
+
+// GET /api/auth/me/delegate-info — get current delegate info with name
+router.get('/me/delegate-info', authenticate, async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: { delegateTo: { select: { id: true, name: true, email: true } } },
+    })
+    res.json({
+      delegateToId: user.delegateToId,
+      delegateFromDate: user.delegateFromDate,
+      delegateToDate: user.delegateToDate,
+      delegateTo: user.delegateTo,
+    })
+  } catch (err) { next(err) }
+})
+
 export default router

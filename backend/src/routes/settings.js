@@ -47,7 +47,7 @@ router.get('/', async (req, res, next) => {
 // PUT /api/settings — admin only
 router.put('/', authenticate, requireRole('admin'), async (req, res, next) => {
   try {
-    const allowed = ['orgName', 'orgTagline', 'timezone']
+    const allowed = ['orgName', 'orgTagline', 'timezone', 'reminder_enabled', 'reminder_days']
     for (const key of allowed) {
       if (req.body[key] !== undefined) {
         await prisma.systemSetting.upsert({

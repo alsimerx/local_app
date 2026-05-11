@@ -3,16 +3,19 @@ import { useAuth } from '../context/AuthContext'
 import { SettingsProvider, useSettings } from '../context/SettingsContext'
 import NotificationBell from './NotificationBell'
 
-const SIDEBAR_GRAD = 'linear-gradient(160deg, #845EC2 0%, #2C73D2 55%, #008E9B 100%)'
+const SIDEBAR_BG = 'linear-gradient(160deg, #080b24 0%, #0d1140 100%)'
 
 function NavItem({ to, icon, label }) {
   return (
-    <NavLink to={to} className={({ isActive }) =>
-      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
-       ${isActive
-         ? 'bg-white/20 text-white shadow-sm backdrop-blur-sm'
-         : 'text-white/70 hover:bg-white/10 hover:text-white'}`
-    }>
+    <NavLink to={to}
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150
+         ${isActive ? 'text-white' : 'text-white/50 hover:text-white/85 hover:bg-white/[0.05]'}`
+      }
+      style={({ isActive }) => isActive ? {
+        background: 'rgba(255,255,255,0.08)',
+        boxShadow: 'inset 2px 0 0 #ff2e7e',
+      } : {}}>
       <span className="w-4 h-4 flex-shrink-0">{icon}</span>
       {label}
     </NavLink>
@@ -27,25 +30,30 @@ function LayoutInner() {
   const handleLogout = () => { logout(); navigate('/login') }
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex h-screen" style={{ background: 'var(--el-soft)' }}>
       {/* Sidebar */}
-      <aside className="w-60 flex flex-col flex-shrink-0 relative" style={{ background: SIDEBAR_GRAD }}>
+      <aside className="w-60 flex flex-col flex-shrink-0 relative" style={{ background: SIDEBAR_BG }}>
         {/* dot pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
+
+        {/* top gradient accent */}
+        <div className="absolute top-0 left-0 right-0 h-px"
+          style={{ background: 'linear-gradient(90deg, #ff2e7e, #00e0ff)' }} />
 
         {/* Org header */}
-        <div className="relative px-4 py-5 border-b border-white/10">
+        <div className="relative px-4 py-5 border-b border-white/8">
           <div className="flex items-center gap-2.5">
             {settings.orgLogo
               ? <img src={settings.orgLogo} alt="logo" className="w-9 h-9 object-contain rounded-lg flex-shrink-0 bg-white/10" />
-              : <div className="w-9 h-9 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+              : <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #ff2e7e, #00e0ff)' }}>
                   {settings.orgName?.charAt(0)}
                 </div>
             }
             <div className="min-w-0">
               <h1 className="text-white font-bold text-sm leading-tight truncate">{settings.orgName}</h1>
-              <p className="text-white/50 text-xs truncate">{settings.orgTagline}</p>
+              <p className="text-white/40 text-xs truncate">{settings.orgTagline}</p>
             </div>
           </div>
         </div>
@@ -75,7 +83,7 @@ function LayoutInner() {
           {user?.role === 'admin' && (
             <>
               <div className="pt-4 pb-1 px-1">
-                <p className="text-white/40 text-[10px] font-semibold uppercase tracking-widest">Admin</p>
+                <p className="text-white/30 text-[10px] font-semibold uppercase tracking-widest">Admin</p>
               </div>
               <NavItem to="/admin/templates" label="Workflow Templates" icon={
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
@@ -85,6 +93,11 @@ function LayoutInner() {
               <NavItem to="/admin/users" label="จัดการผู้ใช้" icon={
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              } />
+              <NavItem to="/admin/reports" label="รายงาน" icon={
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               } />
               <NavItem to="/admin/settings" label="ตั้งค่าระบบ" icon={
@@ -97,29 +110,30 @@ function LayoutInner() {
         </nav>
 
         {/* User footer */}
-        <div className="relative px-3 py-3 border-t border-white/10">
-          <NavLink to="/profile"
-            className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/10 transition-colors mb-1">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#845EC2,#008E9B)' }}>
-              {user?.name?.charAt(0)?.toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-xs font-semibold truncate">{user?.name}</p>
-              <p className="text-white/50 text-[10px] truncate">{user?.email}</p>
-            </div>
-          </NavLink>
-          <button onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-white/60 hover:bg-white/10 hover:text-white text-xs transition-colors">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            ออกจากระบบ
-          </button>
+        <div className="relative px-3 py-2.5 border-t border-white/[0.08]">
+          <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl">
+            <NavLink to="/profile" className="flex items-center gap-2.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #ff2e7e, #00e0ff)' }}>
+                {user?.name?.charAt(0)?.toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-xs font-semibold truncate">{user?.name}</p>
+                <p className="text-white/40 text-[10px] truncate">{user?.email}</p>
+              </div>
+            </NavLink>
+            <button onClick={handleLogout}
+              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.07] transition-colors flex-shrink-0"
+              title="ออกจากระบบ">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto el-bg">
         <Outlet />
       </main>
     </div>

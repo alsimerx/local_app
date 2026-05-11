@@ -111,7 +111,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
         approvalSteps: {
           include: {
             approver: { select: { id: true, name: true } },
-            templateStep: { select: { name: true, order: true } },
+            templateStep: { select: { name: true, order: true, stepType: true } },
           },
           orderBy: { stepOrder: 'asc' },
         },
@@ -128,9 +128,42 @@ router.get('/:id', authenticate, async (req, res, next) => {
     const isRequester = request.requesterId === req.user.id
     const isApprover = request.approvalSteps.some(s => s.approverId === req.user.id)
     const isAdmin = req.user.role === 'admin'
-    if (!isRequester && !isApprover && !isAdmin) return res.status(403).json({ error: 'Forbidden' })
+    // also allow active delegates
+    let isDelegate = false
+    if (!isRequester && !isApprover && !isAdmin) {
+      const approverIds = [...new Set(request.approvalSteps.map(s => s.approverId))]
+      const now = new Date()
+      const delegator = await prisma.user.findFirst({
+        where: { id: { in: approverIds }, delegateToId: req.user.id, delegateFromDate: { lte: now }, delegateToDate: { gte: now } },
+      })
+      isDelegate = !!delegator
+    }
+    if (!isRequester && !isApprover && !isAdmin && !isDelegate) return res.status(403).json({ error: 'Forbidden' })
 
-    res.json(request)
+    // find delegate step: step in currentStep where current user is acting as delegate
+    let delegateStepId = null
+    let delegatingForName = null
+    if (!isApprover && request.status === 'pending') {
+      const now = new Date()
+      const currentStepApprovers = request.approvalSteps
+        .filter(s => s.stepOrder === request.currentStep && s.status === 'pending')
+        .map(s => s.approverId)
+      if (currentStepApprovers.length > 0) {
+        const delegator = await prisma.user.findFirst({
+          where: { id: { in: currentStepApprovers }, delegateToId: req.user.id, delegateFromDate: { lte: now }, delegateToDate: { gte: now } },
+          select: { id: true, name: true },
+        })
+        if (delegator) {
+          const delegateStep = request.approvalSteps.find(s => s.approverId === delegator.id && s.stepOrder === request.currentStep && s.status === 'pending')
+          if (delegateStep) {
+            delegateStepId = delegateStep.id
+            delegatingForName = delegator.name
+          }
+        }
+      }
+    }
+
+    res.json({ ...request, delegateStepId, delegatingForName })
   } catch (err) { next(err) }
 })
 

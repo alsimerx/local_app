@@ -2,11 +2,25 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+/* ============================================================
+   Login — Electric palette (magenta × cyan on ink)
+   Drop-in replacement for src/pages/LoginPage.jsx
+   Requires: Tailwind (already configured), Sarabun font (already loaded),
+             react-router-dom, AuthContext (already in project).
+   ============================================================ */
+
+const TEST_ACCOUNTS = [
+  { role: 'ผู้ดูแลระบบ', email: 'admin@company.com',    pass: 'admin123'    },
+  { role: 'ผู้อนุมัติ',   email: 'manager@company.com',  pass: 'approver123' },
+  { role: 'ผู้ใช้งาน',    email: 'employee@company.com', pass: 'user123'     },
+]
+
 export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
+  const [remember, setRemember] = useState(true)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -24,186 +38,262 @@ export default function LoginPage() {
     }
   }
 
+  const fillTest = a => { setForm({ email: a.email, password: a.pass }); setError('') }
+
   return (
-    <div className="min-h-screen flex">
+    <div
+      className="relative min-h-screen overflow-hidden flex flex-col text-white"
+      style={{
+        background: `
+          radial-gradient(ellipse at 20% -10%, rgba(255,46,126,.35) 0%, transparent 55%),
+          radial-gradient(ellipse at 110% 110%, rgba(0,224,255,.28) 0%, transparent 55%),
+          linear-gradient(180deg, #0a0d2e 0%, #050720 100%)
+        `,
+      }}
+    >
+      {/* ── background blobs ── */}
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute -top-24 left-1/2 -translate-x-1/2 w-[360px] h-[360px] rounded-full opacity-55"
+          style={{ background: 'radial-gradient(circle at 35% 30%, #00e0ff, transparent 70%)', filter: 'blur(40px)' }}
+        />
+        <div
+          className="absolute top-20 -right-20 w-[320px] h-[460px] opacity-50 rotate-[-25deg]"
+          style={{ background: 'radial-gradient(circle at 60% 40%, #ff2e7e, transparent 75%)', filter: 'blur(50px)', borderRadius: '60% 40% 60% 40% / 50% 50% 50% 50%' }}
+        />
+        <div
+          className="absolute bottom-10 left-[12%] w-[240px] h-[240px] rounded-full opacity-45"
+          style={{ background: 'radial-gradient(circle, #ffd23f, transparent 80%)', filter: 'blur(50px)' }}
+        />
+        {/* line decoration */}
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1280 800" preserveAspectRatio="none">
+          <path d="M-50 720 Q 400 580 720 660 T 1330 580" stroke="rgba(255,210,63,.55)" strokeWidth="1.5" fill="none" />
+          <path d="M-50 760 Q 400 620 720 700 T 1330 620" stroke="rgba(0,224,255,.4)" strokeWidth="1" fill="none" />
+        </svg>
+        {/* faint grid */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+            maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+          }}
+        />
+        {/* dot noise */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 0)',
+            backgroundSize: '22px 22px',
+          }}
+        />
+      </div>
 
-      {/* ─── Left panel ─── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #845EC2 0%, #2C73D2 50%, #008E9B 100%)' }}>
+      {/* ── top bar ── */}
+      <header className="relative z-10 flex items-center justify-between px-6 lg:px-10 py-5">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full overflow-hidden bg-white p-0.5 shadow-lg">
+            <img src="/logo.jpg" alt="" className="w-full h-full object-contain" onError={e => (e.currentTarget.style.display = 'none')} />
+          </div>
+          <div>
+            <div className="text-sm font-bold leading-tight">อบต.แหลมสน</div>
+            <div className="text-[10px] tracking-[0.18em] uppercase text-white/55">e-Workflow</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs text-white/60 bg-white/5 border border-white/10 backdrop-blur">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_12px_#00e0ff] animate-pulse" />
+          ระบบใช้งานปกติ
+        </div>
+      </header>
 
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full opacity-10 bg-white" />
-        <div className="absolute top-1/3 -right-20 w-72 h-72 rounded-full opacity-10 bg-white" />
-        <div className="absolute -bottom-16 left-16 w-64 h-64 rounded-full opacity-10 bg-white" />
-        <div className="absolute inset-0 opacity-5"
-          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+      {/* ── card ── */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pb-8">
+        {/* glow behind card */}
+        <div
+          className="pointer-events-none absolute w-[420px] h-[420px] rounded-full opacity-35"
+          style={{ background: 'radial-gradient(circle, #ff2e7e 0%, transparent 65%)', filter: 'blur(80px)' }}
+        />
 
-        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <span className="text-white font-bold text-lg tracking-wide">Workflow</span>
+        <div
+          className="relative w-full max-w-[440px] rounded-3xl px-9 pt-7 pb-8 backdrop-blur-xl"
+          style={{
+            background: 'rgba(15,18,50,.72)',
+            border: '1px solid rgba(255,255,255,.08)',
+            boxShadow: '0 40px 80px -20px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.1)',
+          }}
+        >
+          {/* gradient border glow */}
+          <div
+            className="pointer-events-none absolute -inset-px rounded-3xl opacity-40 -z-10 blur-[1px]"
+            style={{ background: 'linear-gradient(135deg, #ff2e7e 0%, transparent 30%, transparent 70%, #00e0ff 100%)' }}
+          />
+
+          {/* seal */}
+          <div className="relative w-[84px] h-[84px] mx-auto -mt-16">
+            <div className="absolute -inset-[10px] rounded-full border-2 border-dashed border-amber-300/80 animate-[spin_28s_linear_infinite]" />
+            <div className="absolute inset-1 rounded-full border border-cyan-300/40" />
+            <img
+              src="/logo.jpg"
+              alt="ตราหน่วยงาน"
+              className="relative z-10 w-full h-full rounded-full bg-white p-1.5 object-contain"
+              style={{ boxShadow: '0 8px 24px rgba(0,0,0,.5), 0 0 0 4px rgba(255,255,255,.06), 0 0 30px #ff2e7e' }}
+              onError={e => (e.currentTarget.style.display = 'none')}
+            />
           </div>
 
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <h2 className="text-4xl font-bold text-white leading-tight">
-                ระบบขออนุมัติ<br />เอกสารออนไลน์
-              </h2>
-              <p className="text-white/70 text-base leading-relaxed">
-                จัดการคำขอ ติดตามสถานะ และอนุมัติเอกสาร<br />ได้ทุกที่ทุกเวลา
-              </p>
+          {/* head */}
+          <div className="text-center mt-4 mb-6">
+            <div
+              className="text-[11px] font-bold tracking-[0.22em] uppercase"
+              style={{ background: 'linear-gradient(90deg, #ff2e7e, #00e0ff)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}
+            >
+              ระบบขออนุมัติเอกสารออนไลน์
+            </div>
+            <h1 className="text-3xl font-extrabold mt-1 tracking-tight">เข้าสู่ระบบ</h1>
+            <div className="flex items-center justify-center gap-1.5 mt-3">
+              <span className="w-7 h-px" style={{ background: 'linear-gradient(90deg, transparent, #ffd23f, transparent)' }} />
+              <span className="w-2 h-2 rotate-45 bg-amber-300 shadow-[0_0_12px_#ffd23f]" />
+              <span className="w-7 h-px" style={{ background: 'linear-gradient(90deg, transparent, #ffd23f, transparent)' }} />
+            </div>
+          </div>
+
+          {/* form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <Field icon="mail" filled={!!form.email}>
+              <input
+                type="email" required
+                value={form.email}
+                placeholder="อีเมลของท่าน"
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                className="flex-1 bg-transparent outline-none text-sm text-white placeholder-white/35 py-0.5"
+              />
+            </Field>
+            <Field icon="lock" filled={!!form.password}>
+              <input
+                type={showPass ? 'text' : 'password'} required
+                value={form.password}
+                placeholder="รหัสผ่าน"
+                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                className="flex-1 bg-transparent outline-none text-sm text-white placeholder-white/35 py-0.5"
+              />
+              <button type="button" onClick={() => setShowPass(s => !s)} className="text-white/35 hover:text-cyan-300">
+                <Icon name={showPass ? 'eyeOff' : 'eye'} className="w-4 h-4" />
+              </button>
+            </Field>
+
+            <div className="flex items-center justify-between -mt-1">
+              <label className="flex items-center gap-2 text-[13px] text-white/55 cursor-pointer select-none">
+                <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="hidden peer" />
+                <span className="w-4 h-4 rounded border-[1.5px] border-white/25 inline-flex items-center justify-center peer-checked:bg-cyan-300 peer-checked:border-cyan-300 peer-checked:shadow-[0_0_12px_rgba(0,224,255,.6)] peer-checked:[&>svg]:opacity-100">
+                  <svg viewBox="0 0 12 12" className="w-3 h-3 opacity-0">
+                    <path d="M2 6 5 9 10 3" fill="none" stroke="#0a0d2e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                จดจำฉันไว้
+              </label>
+              <button type="button" className="text-[13px] font-semibold text-cyan-300 hover:underline">ลืมรหัสผ่าน?</button>
             </div>
 
-            <div className="space-y-3 pt-2">
-              {[
-                { icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', label: 'สร้างและส่งคำขออนุมัติได้ง่าย' },
-                { icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9', label: 'แจ้งเตือนเรียลไทม์ทุกขั้นตอน' },
-                { icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', label: 'ติดตามสถานะและรายงานสรุป' },
-              ].map((f, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={f.icon} />
-                    </svg>
-                  </div>
-                  <span className="text-white/80 text-sm">{f.label}</span>
-                </div>
+            {error && (
+              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm border" style={{ background: 'rgba(244,63,94,.12)', borderColor: 'rgba(244,63,94,.35)', color: '#fca5a5' }}>
+                <Icon name="alert" className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="relative h-[50px] rounded-xl font-bold text-sm tracking-wide overflow-hidden transition-transform hover:-translate-y-px disabled:opacity-80 disabled:cursor-wait"
+              style={{
+                background: 'linear-gradient(135deg, #ff2e7e, #00e0ff)',
+                boxShadow: '0 12px 32px -8px rgba(255,46,126,.6), inset 0 0 0 1px rgba(255,255,255,.15)',
+              }}
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {loading ? (
+                  <>
+                    <Icon name="spinner" className="w-4 h-4" /> กำลังตรวจสอบ...
+                  </>
+                ) : (
+                  'เข้าสู่ระบบ'
+                )}
+              </span>
+            </button>
+
+            <div className="flex items-center gap-3 text-[11px] text-white/35">
+              <span className="flex-1 h-px bg-white/10" /> หรือ <span className="flex-1 h-px bg-white/10" />
+            </div>
+
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2.5 h-[46px] rounded-xl text-sm font-semibold border-[1.5px] border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-cyan-300 transition"
+            >
+              <span
+                className="w-7 h-7 rounded-md inline-flex items-center justify-center text-[11px] font-extrabold"
+                style={{ background: 'linear-gradient(135deg, #d52b1e, #002868)', boxShadow: '0 2px 8px rgba(213,43,30,.4)' }}
+              >TH</span>
+              เข้าสู่ระบบด้วย ThaID
+            </button>
+          </form>
+
+          {/* test accounts */}
+          <div className="mt-5 pt-4 border-t border-dashed border-white/10">
+            <div className="text-[10px] font-bold tracking-[0.12em] uppercase text-white/35 mb-2">บัญชีทดสอบ</div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {TEST_ACCOUNTS.map(a => (
+                <button
+                  key={a.email} type="button" onClick={() => fillTest(a)}
+                  className="text-left flex flex-col gap-0.5 px-2.5 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-cyan-300 transition"
+                >
+                  <span className="text-[11px] font-bold text-white">{a.role}</span>
+                  <span className="text-[10px] text-white/40 truncate">{a.email}</span>
+                </button>
               ))}
             </div>
           </div>
-
-          <p className="text-white/40 text-xs">&copy; {new Date().getFullYear()} Workflow System</p>
         </div>
-      </div>
 
-      {/* ─── Right panel (form) ─── */}
-      <div className="flex-1 flex items-center justify-center bg-gray-50 p-6">
-        <div className="w-full max-w-md">
-
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#845EC2,#008E9B)' }}>
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <span className="font-bold text-gray-800 text-lg">Workflow</span>
-          </div>
-
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 px-8 py-10">
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900">เข้าสู่ระบบ</h1>
-              <p className="text-gray-400 text-sm mt-1">กรอกข้อมูลเพื่อเข้าใช้งานระบบ</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1.5 tracking-wide uppercase">อีเมล</label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </span>
-                  <input
-                    type="email" required
-                    placeholder="example@company.com"
-                    value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-purple-400 focus:bg-white focus:ring-2 focus:ring-purple-100 transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1.5 tracking-wide uppercase">รหัสผ่าน</label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </span>
-                  <input
-                    type={showPass ? 'text' : 'password'} required
-                    placeholder="รหัสผ่าน"
-                    value={form.password}
-                    onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                    className="w-full pl-10 pr-11 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-purple-400 focus:bg-white focus:ring-2 focus:ring-purple-100 transition-all"
-                  />
-                  <button type="button" onClick={() => setShowPass(s => !s)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                    {showPass
-                      ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                      : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                    }
-                  </button>
-                </div>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-600 text-sm px-4 py-3 rounded-xl">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {error}
-                </div>
-              )}
-
-              {/* Submit */}
-              <button
-                type="submit" disabled={loading}
-                className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition-all disabled:opacity-60 mt-2 hover:opacity-90"
-                style={{ background: loading ? '#94a3b8' : 'linear-gradient(135deg, #845EC2, #2C73D2)' }}
-              >
-                {loading
-                  ? <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" />
-                        <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8H4z" />
-                      </svg>
-                      กำลังเข้าสู่ระบบ...
-                    </span>
-                  : 'เข้าสู่ระบบ'
-                }
-              </button>
-            </form>
-
-            {/* Test accounts */}
-            <details className="mt-6 group">
-              <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-500 select-none list-none flex items-center gap-1">
-                <svg className="w-3.5 h-3.5 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                บัญชีทดสอบ
-              </summary>
-              <div className="mt-3 p-3.5 bg-gray-50 rounded-xl text-xs text-gray-500 space-y-1.5 border border-gray-100">
-                {[
-                  ['Admin', 'admin@company.com', 'admin123'],
-                  ['Approver', 'manager@company.com', 'approver123'],
-                  ['User', 'employee@company.com', 'user123'],
-                ].map(([role, email, pass]) => (
-                  <button key={email} type="button"
-                    onClick={() => setForm({ email, password: pass })}
-                    className="w-full text-left flex items-center justify-between hover:bg-white rounded-lg px-2 py-1.5 transition-colors group/row">
-                    <span className="font-semibold text-gray-600">{role}</span>
-                    <span className="text-gray-400 group-hover/row:text-purple-500 transition-colors">{email}</span>
-                  </button>
-                ))}
-              </div>
-            </details>
-          </div>
-        </div>
-      </div>
+        <p className="mt-5 text-[11px] text-white/35">© องค์การบริหารส่วนตำบลแหลมสน · พัฒนาโดยกองการศึกษาฯ</p>
+      </main>
     </div>
   )
+}
+
+/* ── small helpers ── */
+function Field({ icon, filled, children }) {
+  return (
+    <label
+      className={
+        'flex items-center gap-3 px-3.5 py-3 rounded-xl border-[1.5px] transition-all ' +
+        'bg-white/[0.04] border-white/[0.12] focus-within:bg-white/[0.06] focus-within:border-cyan-300 focus-within:shadow-[0_0_0_4px_rgba(0,224,255,0.18)] ' +
+        (filled ? 'text-cyan-300' : 'text-white/35')
+      }
+    >
+      <Icon name={icon} className="w-[18px] h-[18px]" />
+      {children}
+    </label>
+  )
+}
+
+function Icon({ name, className }) {
+  const props = { className, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  switch (name) {
+    case 'mail':   return <svg {...props}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+    case 'lock':   return <svg {...props}><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+    case 'eye':    return <svg {...props}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+    case 'eyeOff': return <svg {...props}><path d="M3 3l18 18" /><path d="M10.6 6.1A10.5 10.5 0 0 1 12 6c6.5 0 10 6 10 6a18 18 0 0 1-3.2 4M6.6 6.6A18 18 0 0 0 2 12s3.5 6 10 6a10 10 0 0 0 4.4-1" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" /></svg>
+    case 'alert':  return <svg {...props} strokeWidth={1.8}><circle cx="12" cy="12" r="10" /><path d="M12 8v5" /><path d="M12 16h.01" /></svg>
+    case 'spinner':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+          <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.9s" repeatCount="indefinite" />
+          </path>
+        </svg>
+      )
+    default: return null
+  }
 }

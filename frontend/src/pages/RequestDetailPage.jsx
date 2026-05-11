@@ -55,13 +55,17 @@ function AttachmentsSection({ requestId, attachments, canUpload, onReload }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+    <div className="el-card p-5">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-800">ไฟล์แนบ {attachments.length > 0 && <span className="text-gray-400 font-normal text-sm">({attachments.length})</span>}</h3>
+        <h3 className="el-section-title">
+          ไฟล์แนบ
+          {attachments.length > 0 && <span className="font-normal text-xs ml-1" style={{ color: 'var(--el-muted)' }}>({attachments.length})</span>}
+        </h3>
         {canUpload && (
           <>
             <button onClick={() => inputRef.current.click()} disabled={uploading}
-              className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 px-3 py-1.5 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
+              className="flex items-center gap-1.5 text-sm disabled:opacity-50 px-3 py-1.5 border rounded-lg transition-colors hover:bg-el-soft"
+              style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)' }}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
               {uploading ? 'กำลังอัปโหลด...' : 'อัปโหลดไฟล์'}
             </button>
@@ -72,32 +76,36 @@ function AttachmentsSection({ requestId, attachments, canUpload, onReload }) {
       </div>
 
       {attachments.length === 0 ? (
-        <p className="text-sm text-gray-400 py-4 text-center">ยังไม่มีไฟล์แนบ</p>
+        <p className="text-sm py-4 text-center" style={{ color: 'var(--el-muted)' }}>ยังไม่มีไฟล์แนบ</p>
       ) : (
         <ul className="space-y-2">
           {attachments.map(a => {
             const isImage = a.mimeType?.startsWith('image/')
             return (
-              <li key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-100 hover:bg-gray-50 group">
+              <li key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-el-soft group transition-colors"
+                style={{ border: '1px solid var(--el-line)' }}>
                 {isImage ? (
                   <img src={a.filePath} alt={a.filename}
-                    className="w-10 h-10 object-cover rounded border border-gray-200 cursor-pointer flex-shrink-0"
+                    className="w-10 h-10 object-cover rounded-lg flex-shrink-0 cursor-pointer"
+                    style={{ border: '1px solid var(--el-line)' }}
                     onClick={() => setPreview(a)} />
                 ) : (
                   <span className="text-2xl flex-shrink-0 w-10 text-center">{fileIcon(a.mimeType)}</span>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 truncate font-medium">{a.filename}</p>
-                  <p className="text-xs text-gray-400">{formatSize(a.fileSize)} · {dayjs(a.uploadedAt).format('D/M/YYYY HH:mm')}</p>
+                  <p className="text-sm font-medium truncate" style={{ color: 'var(--el-ink)' }}>{a.filename}</p>
+                  <p className="text-xs" style={{ color: 'var(--el-muted)' }}>{formatSize(a.fileSize)} · {dayjs(a.uploadedAt).format('D/M/YYYY HH:mm')}</p>
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <a href={a.filePath} download={a.filename}
-                    className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="ดาวน์โหลด">
+                    className="p-1.5 rounded-lg transition-colors hover:bg-el-soft"
+                    style={{ color: 'var(--el-muted)' }} title="ดาวน์โหลด">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                   </a>
                   {canUpload && (
                     <button onClick={() => handleDelete(a)}
-                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="ลบ">
+                      className="p-1.5 rounded-lg transition-colors hover:bg-red-50"
+                      style={{ color: 'var(--el-muted)' }} title="ลบ">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                   )}
@@ -124,27 +132,71 @@ function AttachmentsSection({ requestId, attachments, canUpload, onReload }) {
 }
 
 function ApprovalStepsPanel({ steps, currentStep, requestStatus }) {
+  // group by stepOrder so parallel steps show together
+  const grouped = steps.reduce((acc, s) => {
+    const key = s.stepOrder
+    if (!acc[key]) acc[key] = []
+    acc[key].push(s)
+    return acc
+  }, {})
+
   return (
     <div className="space-y-3">
-      {steps.map(step => {
-        const isActive = step.stepOrder === currentStep && requestStatus === 'pending'
-        const isDone = step.status !== 'pending'
+      {Object.entries(grouped).map(([order, group]) => {
+        const orderNum = Number(order)
+        const isActive = orderNum === currentStep && requestStatus === 'pending'
+        const isParallel = group[0]?.templateStep?.stepType === 'parallel'
+        const allApproved = group.every(s => s.status === 'approved')
+        const anyRejected = group.some(s => s.status === 'rejected')
+        const anyReturned = group.some(s => s.status === 'returned')
+        const groupStatus = anyRejected ? 'rejected' : anyReturned ? 'returned' : allApproved ? 'approved' : isActive ? 'pending' : 'draft'
+
         return (
-          <div key={step.id} className={`flex items-start gap-3 p-3 rounded-lg border ${isActive ? 'border-yellow-300 bg-yellow-50' : isDone ? 'border-gray-100 bg-gray-50' : 'border-gray-100'}`}>
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5
-              ${step.status === 'approved' ? 'bg-green-500 text-white' :
-                step.status === 'rejected' ? 'bg-red-500 text-white' :
-                step.status === 'returned' ? 'bg-orange-500 text-white' :
-                isActive ? 'bg-yellow-400 text-white' : 'bg-gray-200 text-gray-500'}`}>
-              {step.status === 'approved' ? '✓' : step.status === 'rejected' ? '✕' : step.stepOrder}
+          <div key={order} className={`p-3 rounded-lg border ${isActive ? 'border-yellow-300 bg-yellow-50' : groupStatus === 'approved' ? 'border-gray-100 bg-gray-50' : 'border-gray-100'}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold
+                ${groupStatus === 'approved' ? 'bg-green-500 text-white' :
+                  groupStatus === 'rejected' ? 'bg-red-500 text-white' :
+                  groupStatus === 'returned' ? 'bg-orange-500 text-white' :
+                  isActive ? 'bg-yellow-400 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                {groupStatus === 'approved' ? '✓' : groupStatus === 'rejected' ? '✕' : orderNum}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-gray-800">{group[0]?.templateStep?.name}</p>
+                  {isParallel && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">⚡ Parallel</span>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800">{step.templateStep?.name}</p>
-              <p className="text-xs text-gray-500">{step.approver?.name}</p>
-              {step.comment && <p className="text-xs text-gray-600 mt-1 bg-white rounded px-2 py-1 border border-gray-200">"{step.comment}"</p>}
-              {step.actionedAt && <p className="text-xs text-gray-400 mt-1">{dayjs(step.actionedAt).format('D/M/YYYY HH:mm')}</p>}
-            </div>
-            <StatusBadge status={step.status === 'pending' && isActive ? 'pending' : step.status === 'pending' ? 'draft' : step.status} />
+
+            {isParallel && group.length > 1
+              ? (
+                <div className="space-y-1.5 pl-9">
+                  {group.map(s => (
+                    <div key={s.id} className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.status === 'approved' ? 'bg-green-500' : s.status === 'rejected' ? 'bg-red-500' : s.status === 'returned' ? 'bg-orange-500' : 'bg-yellow-400'}`} />
+                      <span className="text-xs text-gray-600 flex-1">{s.approver?.name}</span>
+                      <span className={`text-[10px] font-medium ${s.status === 'approved' ? 'text-green-600' : s.status === 'rejected' ? 'text-red-600' : s.status === 'returned' ? 'text-orange-600' : 'text-yellow-600'}`}>
+                        {s.status === 'approved' ? 'อนุมัติ' : s.status === 'rejected' ? 'ปฏิเสธ' : s.status === 'returned' ? 'ส่งกลับ' : 'รออยู่'}
+                      </span>
+                    </div>
+                  ))}
+                  {group.some(s => s.comment) && (
+                    <p className="text-xs text-gray-600 mt-1 bg-white rounded px-2 py-1 border border-gray-200">
+                      "{group.find(s => s.comment)?.comment}"
+                    </p>
+                  )}
+                </div>
+              )
+              : (
+                <div className="pl-9">
+                  <p className="text-xs text-gray-500">{group[0]?.approver?.name}</p>
+                  {group[0]?.comment && <p className="text-xs text-gray-600 mt-1 bg-white rounded px-2 py-1 border border-gray-200">"{group[0].comment}"</p>}
+                  {group[0]?.actionedAt && <p className="text-xs text-gray-400 mt-0.5">{dayjs(group[0].actionedAt).format('D/M/YYYY HH:mm')}</p>}
+                </div>
+              )}
           </div>
         )
       })}
@@ -160,6 +212,7 @@ export default function RequestDetailPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [comment, setComment] = useState('')
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   const load = () => {
     api.get(`/requests/${id}`).then(r => setRequest(r.data)).finally(() => setLoading(false))
@@ -172,6 +225,8 @@ export default function RequestDetailPage() {
   const isRequester = request.requester?.id === user?.id
   const isAdmin = user?.role === 'admin'
   const myStep = request.approvalSteps?.find(s => s.approverId === user?.id && s.stepOrder === request.currentStep && s.status === 'pending')
+    ?? (request.delegateStepId ? request.approvalSteps?.find(s => s.id === request.delegateStepId) : null)
+  const isDelegateAction = !request.approvalSteps?.some(s => s.approverId === user?.id && s.stepOrder === request.currentStep) && !!myStep
   const canApprove = !!myStep && request.status === 'pending'
   const canSubmit = isRequester && ['draft', 'returned'].includes(request.status)
   const canCancel = isRequester && !['approved', 'rejected', 'cancelled'].includes(request.status)
@@ -213,21 +268,54 @@ export default function RequestDetailPage() {
 
   const formData = request.formData ? JSON.parse(request.formData) : {}
 
+  const handleExportPdf = async () => {
+    setPdfLoading(true)
+    try {
+      const { jsPDF } = await import('jspdf')
+      const { default: html2canvas } = await import('html2canvas')
+      const el = document.getElementById('pdf-export-area')
+      const canvas = await html2canvas(el, { scale: 1.5, useCORS: true, allowTaint: true })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const W = pdf.internal.pageSize.getWidth() - 20
+      const H = pdf.internal.pageSize.getHeight() - 20
+      const totalH = canvas.height * (W / canvas.width)
+      let yOffset = 0
+      while (yOffset < totalH) {
+        if (yOffset > 0) pdf.addPage()
+        pdf.addImage(imgData, 'PNG', 10, 10 - yOffset, W, totalH)
+        yOffset += H
+      }
+      pdf.save(`${request.requestNumber}.pdf`)
+    } finally {
+      setPdfLoading(false)
+    }
+  }
+
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-6 lg:p-8 max-w-4xl mx-auto">
       <div className="mb-6">
-        <Link to="/requests" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4 w-fit">
+        <Link to="/requests" className="flex items-center gap-1 text-sm mb-4 w-fit hover:underline"
+          style={{ color: 'var(--el-muted)' }}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           กลับ
         </Link>
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <span className="font-mono text-sm text-gray-400">{request.requestNumber}</span>
+              <span className="font-mono text-sm font-semibold" style={{ color: 'var(--el-muted)' }}>{request.requestNumber}</span>
               <StatusBadge status={request.status} size="lg" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">{request.title}</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-[32px] font-bold text-[#0a0d2e]">{request.title}</h2>
+            <button onClick={handleExportPdf} disabled={pdfLoading}
+              className="mt-2 flex items-center gap-1.5 text-xs border rounded-lg px-3 py-1.5 disabled:opacity-50 transition-colors hover:bg-el-soft"
+              style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)' }}>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              {pdfLoading ? 'กำลังสร้าง PDF...' : 'Export PDF'}
+            </button>
+            <p className="text-sm mt-1" style={{ color: 'var(--el-muted)' }}>
               {request.template?.name} · สร้างโดย {request.requester?.name}
               {request.requester?.department ? ` (${request.requester.department})` : ''}
               · {dayjs(request.createdAt).format('D/M/YYYY HH:mm')}
@@ -236,11 +324,11 @@ export default function RequestDetailPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div id="pdf-export-area" className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Form Data */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h3 className="font-semibold text-gray-800 mb-4">รายละเอียดคำขอ</h3>
+          <div className="el-card p-5">
+            <h3 className="el-section-title mb-4">รายละเอียดคำขอ</h3>
             <dl className="space-y-3">
               {request.template?.fields?.map(field => {
                 const val = formData[field.id]
@@ -268,18 +356,17 @@ export default function RequestDetailPage() {
 
           {/* Actions */}
           {(canSubmit || canCancel) && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <h3 className="font-semibold text-gray-800 mb-3">การดำเนินการ</h3>
+            <div className="el-card p-5">
+              <h3 className="el-section-title mb-3">การดำเนินการ</h3>
               <div className="flex gap-3">
                 {canSubmit && (
-                  <button onClick={handleSubmit} disabled={actionLoading}
-                    className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                  <button onClick={handleSubmit} disabled={actionLoading} className="el-btn-primary disabled:opacity-50">
                     ส่งคำขอ
                   </button>
                 )}
                 {canCancel && (
                   <button onClick={handleCancel} disabled={actionLoading}
-                    className="px-5 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 disabled:opacity-50 transition-colors">
+                    className="px-5 py-2 border border-red-200 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-50 disabled:opacity-50 transition-colors">
                     ยกเลิกคำขอ
                   </button>
                 )}
@@ -289,26 +376,37 @@ export default function RequestDetailPage() {
 
           {/* Approver Actions */}
           {canApprove && (
-            <div className="bg-white rounded-xl border border-yellow-200 shadow-sm p-5">
-              <h3 className="font-semibold text-gray-800 mb-3">อนุมัติ / ปฏิเสธ</h3>
+            <div className="el-card p-5" style={{ borderColor: 'rgba(255,46,126,0.2)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="el-section-title">อนุมัติ / ปฏิเสธ</h3>
+                {isDelegateAction && request.delegatingForName && (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                    style={{ background: 'var(--el-amber-soft)', color: '#b97600' }}>
+                    มอบหมายแทน {request.delegatingForName}
+                  </span>
+                )}
+              </div>
               <textarea
                 rows={3}
                 placeholder="ความเห็น (บังคับสำหรับการปฏิเสธและส่งกลับ)"
                 value={comment}
                 onChange={e => setComment(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+                className="el-textarea mb-3"
               />
               <div className="flex gap-2">
                 <button onClick={() => handleApprovalAction('approved')} disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors">
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)' }}>
                   ✓ อนุมัติ
                 </button>
                 <button onClick={() => handleApprovalAction('returned')} disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50 transition-colors">
-                  ↩ ส่งกลับแก้ไข
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
+                  ↩ ส่งกลับ
                 </button>
                 <button onClick={() => handleApprovalAction('rejected')} disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)' }}>
                   ✕ ปฏิเสธ
                 </button>
               </div>
@@ -316,16 +414,16 @@ export default function RequestDetailPage() {
           )}
 
           {/* Timeline */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h3 className="font-semibold text-gray-800 mb-4">ประวัติการดำเนินการ</h3>
+          <div className="el-card p-5">
+            <h3 className="el-section-title mb-4">ประวัติการดำเนินการ</h3>
             <Timeline logs={request.auditLogs} />
           </div>
         </div>
 
         {/* Right sidebar */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h3 className="font-semibold text-gray-800 mb-3">ขั้นตอนอนุมัติ</h3>
+          <div className="el-card p-5">
+            <h3 className="el-section-title mb-3">ขั้นตอนอนุมัติ</h3>
             <ApprovalStepsPanel
               steps={request.approvalSteps || []}
               currentStep={request.currentStep}

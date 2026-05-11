@@ -5,7 +5,7 @@ const FIELD_TYPES = ['text', 'number', 'date', 'textarea', 'dropdown', 'checkbox
 const FIELD_TYPE_LABEL = { text: 'ข้อความ', number: 'ตัวเลข', date: 'วันที่', textarea: 'ข้อความยาว', dropdown: 'Dropdown', checkbox: 'Checkbox' }
 
 const emptyField = () => ({ _id: Date.now(), label: '', fieldType: 'text', required: false, options: '' })
-const emptyStep = () => ({ _id: Date.now(), name: '', approverIds: [] })
+const emptyStep = () => ({ _id: Date.now(), name: '', approverIds: [], stepType: 'sequential' })
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState([])
@@ -35,7 +35,7 @@ export default function TemplatesPage() {
       category: t.category || '',
       isActive: t.isActive,
       fields: t.fields.map(f => ({ ...f, _id: f.id, options: f.options ? JSON.parse(f.options).join(', ') : '' })),
-      steps: t.steps.map(s => ({ ...s, _id: s.id, approverIds: s.approvers.map(a => a.userId) })),
+      steps: t.steps.map(s => ({ ...s, _id: s.id, approverIds: s.approvers.map(a => a.userId), stepType: s.stepType || 'sequential' })),
     })
     setError('')
     setModal('edit')
@@ -81,6 +81,7 @@ export default function TemplatesPage() {
         steps: form.steps.map((s, i) => ({
           order: i + 1,
           name: s.name,
+          stepType: s.stepType || 'sequential',
           approverIds: s.approverIds.map(Number),
         })),
       }
@@ -120,39 +121,62 @@ export default function TemplatesPage() {
     }
   }
 
-  const inp = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 lg:p-8 max-w-5xl mx-auto">
+      <div className="flex items-start justify-between mb-7">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Workflow Templates</h2>
-          <p className="text-sm text-gray-500 mt-0.5">กำหนดแม่แบบคำขอและลำดับการอนุมัติ</p>
+          <div className="el-eyebrow">Admin</div>
+          <h2 className="text-[32px] font-bold text-[#0a0d2e]">Workflow Templates</h2>
+          <p className="text-[18px] text-[#6b7390] mt-1">กำหนดแม่แบบคำขอและลำดับการอนุมัติ</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+        <button onClick={openCreate} className="el-btn-primary">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
           สร้าง Template
         </button>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.map(t => (
-          <div key={t.id} className={`bg-white rounded-xl border shadow-sm p-5 ${!t.isActive ? 'opacity-50' : 'border-gray-100'}`}>
-            {t.category && <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{t.category}</span>}
-            <h3 className="font-semibold text-gray-900 mt-2">{t.name}</h3>
-            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{t.description}</p>
-            <div className="mt-3 flex items-center gap-3 text-xs text-gray-400">
+          <div key={t.id}
+            className={`el-card p-5 transition-all ${!t.isActive ? 'opacity-50' : ''}`}>
+            {t.category && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
+                style={{ background: 'var(--el-pink-soft)', color: 'var(--el-pink)' }}>
+                {t.category}
+              </span>
+            )}
+            <h3 className="font-semibold mt-2" style={{ color: 'var(--el-ink)' }}>{t.name}</h3>
+            <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--el-muted)' }}>{t.description}</p>
+            <div className="mt-3 flex items-center gap-3 text-xs" style={{ color: 'var(--el-muted)' }}>
               <span>{t.fields?.length} ฟิลด์</span>
               <span>{t.steps?.length} ขั้นตอน</span>
-              {!t.isActive && <span className="text-red-400">ปิดใช้งาน</span>}
+              {!t.isActive && <span style={{ color: '#EF4444' }}>ปิดใช้งาน</span>}
             </div>
             <div className="mt-3 flex gap-2">
-              <button onClick={() => openEdit(t)} className="flex-1 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50">แก้ไข</button>
+              <button onClick={() => openEdit(t)}
+                className="flex-1 py-1.5 border rounded-lg text-xs font-medium transition-colors hover:bg-el-soft"
+                style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)' }}>
+                แก้ไข
+              </button>
               {t.isActive
-                ? <button onClick={() => handleDeactivate(t)} className="flex-1 py-1.5 border border-yellow-100 rounded-lg text-xs text-yellow-600 hover:bg-yellow-50">ปิดใช้งาน</button>
-                : <button onClick={() => handleActivate(t)} className="flex-1 py-1.5 border border-green-200 rounded-lg text-xs text-green-600 hover:bg-green-50">เปิดใช้งาน</button>
+                ? <button onClick={() => handleDeactivate(t)}
+                    className="flex-1 py-1.5 border rounded-lg text-xs font-medium transition-colors hover:bg-[#fff8e0]"
+                    style={{ borderColor: '#fde68a', color: '#d97706' }}>
+                    ปิดใช้งาน
+                  </button>
+                : <button onClick={() => handleActivate(t)}
+                    className="flex-1 py-1.5 border rounded-lg text-xs font-medium transition-colors hover:bg-[#e6fbff]"
+                    style={{ borderColor: '#a5f3fc', color: '#0099b3' }}>
+                    เปิดใช้งาน
+                  </button>
               }
-              <button onClick={() => handleDelete(t)} className="py-1.5 px-3 border border-red-100 rounded-lg text-xs text-red-500 hover:bg-red-50">ลบ</button>
+              <button onClick={() => handleDelete(t)}
+                className="py-1.5 px-3 border rounded-lg text-xs font-medium transition-colors hover:bg-red-50"
+                style={{ borderColor: '#fecdd3', color: '#EF4444' }}>
+                ลบ
+              </button>
             </div>
           </div>
         ))}
@@ -161,48 +185,52 @@ export default function TemplatesPage() {
       {/* Modal */}
       {modal && (
         <div className="fixed inset-0 bg-black/40 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 p-6">
-            <h3 className="font-bold text-gray-900 mb-5 text-lg">{modal === 'create' ? 'สร้าง Template ใหม่' : 'แก้ไข Template'}</h3>
+          <div className="el-card w-full max-w-2xl my-8 p-6 shadow-2xl">
+            <h3 className="font-bold text-lg mb-5" style={{ color: 'var(--el-ink)' }}>
+              {modal === 'create' ? 'สร้าง Template ใหม่' : 'แก้ไข Template'}
+            </h3>
 
             {/* Basic Info */}
             <div className="grid grid-cols-2 gap-3 mb-5">
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-gray-600 mb-1">ชื่อ Template *</label>
-                <input className={inp} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--el-ink)' }}>ชื่อ Template <span style={{ color: 'var(--el-pink)' }}>*</span></label>
+                <input className="el-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">หมวดหมู่</label>
-                <input className={inp} value={form.category} placeholder="HR, Finance, Procurement..." onChange={e => setForm(f => ({ ...f, category: e.target.value }))} />
+                <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--el-ink)' }}>หมวดหมู่</label>
+                <input className="el-input" value={form.category} placeholder="HR, Finance, Procurement..." onChange={e => setForm(f => ({ ...f, category: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">คำอธิบาย</label>
-                <input className={inp} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--el-ink)' }}>คำอธิบาย</label>
+                <input className="el-input" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
               </div>
             </div>
 
             {/* Fields */}
             <div className="mb-5">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-semibold text-gray-700">ฟิลด์ในฟอร์ม</h4>
-                <button onClick={addField} className="text-xs text-blue-600 hover:underline">+ เพิ่มฟิลด์</button>
+                <h4 className="text-sm font-semibold" style={{ color: 'var(--el-ink)' }}>ฟิลด์ในฟอร์ม</h4>
+                <button onClick={addField} className="text-xs font-medium hover:underline" style={{ color: 'var(--el-pink)' }}>+ เพิ่มฟิลด์</button>
               </div>
               <div className="space-y-2">
                 {form.fields.map((f, i) => (
-                  <div key={f._id} className="flex gap-2 items-start bg-gray-50 p-3 rounded-lg">
+                  <div key={f._id} className="flex gap-2 items-start p-3 rounded-xl" style={{ background: 'var(--el-soft)' }}>
                     <div className="flex-1 grid grid-cols-3 gap-2">
-                      <input className={inp} placeholder="Label *" value={f.label} onChange={e => setField(i, 'label', e.target.value)} />
-                      <select className={inp} value={f.fieldType} onChange={e => setField(i, 'fieldType', e.target.value)}>
+                      <input className="el-input" placeholder="Label *" value={f.label} onChange={e => setField(i, 'label', e.target.value)} />
+                      <select className="el-input" value={f.fieldType} onChange={e => setField(i, 'fieldType', e.target.value)}>
                         {FIELD_TYPES.map(t => <option key={t} value={t}>{FIELD_TYPE_LABEL[t]}</option>)}
                       </select>
                       {f.fieldType === 'dropdown'
-                        ? <input className={inp} placeholder="ตัวเลือก (คั่นด้วย ,)" value={f.options} onChange={e => setField(i, 'options', e.target.value)} />
-                        : <label className="flex items-center gap-1.5 text-sm text-gray-600 pl-1">
+                        ? <input className="el-input" placeholder="ตัวเลือก (คั่นด้วย ,)" value={f.options} onChange={e => setField(i, 'options', e.target.value)} />
+                        : <label className="flex items-center gap-1.5 text-sm pl-1" style={{ color: 'var(--el-muted)' }}>
                             <input type="checkbox" checked={f.required} onChange={e => setField(i, 'required', e.target.checked)} />
                             จำเป็น
                           </label>
                       }
                     </div>
-                    <button onClick={() => removeField(i)} className="text-gray-300 hover:text-red-400 mt-1 flex-shrink-0">
+                    <button onClick={() => removeField(i)} className="mt-1 flex-shrink-0 transition-colors" style={{ color: 'var(--el-line)' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#EF4444'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--el-line)'}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   </div>
@@ -213,33 +241,59 @@ export default function TemplatesPage() {
             {/* Steps */}
             <div className="mb-5">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-semibold text-gray-700">ขั้นตอนการอนุมัติ</h4>
-                <button onClick={addStep} className="text-xs text-blue-600 hover:underline">+ เพิ่ม Step</button>
+                <h4 className="text-sm font-semibold" style={{ color: 'var(--el-ink)' }}>ขั้นตอนการอนุมัติ</h4>
+                <button onClick={addStep} className="text-xs font-medium hover:underline" style={{ color: 'var(--el-pink)' }}>+ เพิ่ม Step</button>
               </div>
               <div className="space-y-2">
                 {form.steps.map((s, i) => (
-                  <div key={s._id} className="flex gap-2 items-start bg-blue-50 p-3 rounded-lg">
-                    <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-1">{i + 1}</span>
-                    <div className="flex-1 grid grid-cols-2 gap-2">
-                      <input className={inp} placeholder="ชื่อขั้นตอน *" value={s.name} onChange={e => setStep(i, 'name', e.target.value)} />
-                      <select className={inp} multiple value={s.approverIds.map(String)}
-                        onChange={e => setStep(i, 'approverIds', Array.from(e.target.selectedOptions, o => Number(o.value)))}>
-                        {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
-                      </select>
+                  <div key={s._id} className="flex gap-2 items-start p-3 rounded-xl" style={{ background: 'var(--el-pink-soft)' }}>
+                    <span className="w-6 h-6 rounded-full text-white text-xs flex items-center justify-center flex-shrink-0 mt-1 font-bold"
+                      style={{ background: 'linear-gradient(135deg, var(--el-pink), var(--el-cyan))' }}>
+                      {i + 1}
+                    </span>
+                    <div className="flex-1 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <input className="el-input" placeholder="ชื่อขั้นตอน *" value={s.name} onChange={e => setStep(i, 'name', e.target.value)} />
+                        <select className="el-input" multiple value={s.approverIds.map(String)}
+                          onChange={e => setStep(i, 'approverIds', Array.from(e.target.selectedOptions, o => Number(o.value)))}>
+                          {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs" style={{ color: 'var(--el-muted)' }}>ประเภท:</span>
+                        {['sequential', 'parallel'].map(type => (
+                          <button key={type} type="button"
+                            onClick={() => setStep(i, 'stepType', type)}
+                            className="px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all"
+                            style={s.stepType === type
+                              ? { background: 'linear-gradient(135deg, var(--el-pink), var(--el-cyan))', color: 'white', borderColor: 'transparent' }
+                              : { background: 'white', color: 'var(--el-muted)', borderColor: 'var(--el-line)' }}>
+                            {type === 'sequential' ? 'Sequential (ทีละคน)' : 'Parallel (ทุกคนพร้อมกัน)'}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <button onClick={() => removeStep(i)} className="text-gray-300 hover:text-red-400 mt-1 flex-shrink-0">
+                    <button onClick={() => removeStep(i)} className="mt-1 flex-shrink-0 transition-colors" style={{ color: 'var(--el-line)' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#EF4444'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--el-line)'}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-gray-400 mt-1">กด Ctrl/Cmd เพื่อเลือกผู้อนุมัติหลายคน</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--el-muted)' }}>กด Ctrl/Cmd เพื่อเลือกผู้อนุมัติหลายคน</p>
             </div>
 
-            {error && <p className="mb-3 text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+            {error && (
+              <p className="mb-3 text-sm px-3 py-2 rounded-xl" style={{ background: '#fee2e2', color: '#dc2626' }}>{error}</p>
+            )}
             <div className="flex gap-3">
-              <button onClick={() => setModal(null)} className="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">ยกเลิก</button>
-              <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+              <button onClick={() => setModal(null)}
+                className="flex-1 py-2.5 border rounded-xl text-sm font-medium transition-colors hover:bg-el-soft"
+                style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)' }}>
+                ยกเลิก
+              </button>
+              <button onClick={handleSave} disabled={saving} className="el-btn-primary flex-1 justify-center disabled:opacity-50">
                 {saving ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>

@@ -3,25 +3,26 @@ import { useNavigate } from 'react-router-dom'
 import api from '../lib/axios'
 
 function DynamicField({ field, value, onChange }) {
-  const base = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent'
   const opts = field.options ? JSON.parse(field.options) : []
 
   if (field.fieldType === 'textarea') return (
-    <textarea rows={3} className={base} required={field.required} value={value || ''} onChange={e => onChange(e.target.value)} />
+    <textarea rows={3} className="el-textarea" required={field.required}
+      value={value || ''} onChange={e => onChange(e.target.value)} />
   )
   if (field.fieldType === 'dropdown') return (
-    <select className={base} required={field.required} value={value || ''} onChange={e => onChange(e.target.value)}>
+    <select className="el-input" required={field.required}
+      value={value || ''} onChange={e => onChange(e.target.value)}>
       <option value="">-- เลือก --</option>
       {opts.map(o => <option key={o} value={o}>{o}</option>)}
     </select>
   )
   if (field.fieldType === 'checkbox') return (
-    <input type="checkbox" className="w-4 h-4 text-purple-600 rounded" checked={!!value} onChange={e => onChange(e.target.checked)} />
+    <input type="checkbox" className="w-5 h-5 rounded accent-el-pink" checked={!!value} onChange={e => onChange(e.target.checked)} />
   )
   return (
     <input
       type={field.fieldType === 'number' ? 'number' : field.fieldType === 'date' ? 'date' : 'text'}
-      className={base}
+      className="el-input"
       required={field.required}
       value={value || ''}
       onChange={e => onChange(e.target.value)}
@@ -45,9 +46,9 @@ function formatSize(bytes) {
 }
 
 const CATEGORY_COLOR = {
-  HR: 'bg-purple-50 text-purple-700 border-purple-200',
-  Finance: 'bg-teal-50 text-teal-700 border-teal-200',
-  Procurement: 'bg-orange-50 text-orange-700 border-orange-200',
+  HR:          { bg: 'var(--el-pink-soft)',  text: 'var(--el-pink)' },
+  Finance:     { bg: 'var(--el-cyan-soft)',  text: '#0099b3' },
+  Procurement: { bg: 'var(--el-amber-soft)', text: '#b97600' },
 }
 
 export default function NewRequestPage() {
@@ -125,27 +126,32 @@ export default function NewRequestPage() {
   /* ── Step 1: เลือก Template ── */
   if (step === 1) return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-gray-900">สร้างคำขอใหม่</h2>
-        <p className="text-sm text-gray-400 mt-0.5">เลือกประเภทคำขอที่ต้องการ</p>
+      <div className="mb-7">
+        <div className="el-eyebrow">New Request</div>
+        <h2 className="text-[32px] font-bold text-[#0a0d2e]">สร้างคำขอใหม่</h2>
+        <p className="text-[18px] text-[#6b7390] mt-1">เลือกประเภทคำขอที่ต้องการ</p>
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.map(t => {
-          const clr = CATEGORY_COLOR[t.category] || 'bg-gray-50 text-gray-700 border-gray-200'
+          const clr = CATEGORY_COLOR[t.category] || { bg: 'var(--el-soft)', text: 'var(--el-muted)' }
           return (
             <button key={t.id} onClick={() => handleSelectTemplate(t)}
-              className="text-left p-5 bg-white border-2 border-gray-100 rounded-2xl hover:border-purple-400 hover:shadow-md transition-all group">
-              <div className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium border mb-3 ${clr}`}>
+              className="el-card text-left p-5 hover:shadow-md transition-all group cursor-pointer"
+              style={{ borderColor: 'var(--el-line)' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--el-pink)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--el-line)'}>
+              <div className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold mb-3"
+                style={{ background: clr.bg, color: clr.text }}>
                 {t.category}
               </div>
-              <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 mb-1">{t.name}</h3>
-              <p className="text-xs text-gray-500 line-clamp-2">{t.description}</p>
-              <p className="text-xs text-gray-400 mt-3">{t.steps?.length} ขั้นตอนอนุมัติ · {t.fields?.length} ฟิลด์</p>
+              <h3 className="font-semibold mb-1 group-hover:text-el-pink transition-colors" style={{ color: 'var(--el-ink)' }}>{t.name}</h3>
+              <p className="text-xs line-clamp-2" style={{ color: 'var(--el-muted)' }}>{t.description}</p>
+              <p className="text-xs mt-3" style={{ color: 'var(--el-muted)' }}>{t.steps?.length} ขั้นตอนอนุมัติ · {t.fields?.length} ฟิลด์</p>
             </button>
           )
         })}
         {templates.length === 0 && (
-          <p className="col-span-3 text-center text-gray-400 py-12">ยังไม่มี Template — กรุณาให้ Admin สร้าง Template ก่อน</p>
+          <p className="col-span-3 text-center py-12" style={{ color: 'var(--el-muted)' }}>ยังไม่มี Template — กรุณาให้ Admin สร้าง Template ก่อน</p>
         )}
       </div>
     </div>
@@ -155,58 +161,64 @@ export default function NewRequestPage() {
   return (
     <div className="p-6 lg:p-8 max-w-2xl mx-auto">
       <div className="mb-6">
-        <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 mb-4">
+        <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm mb-4 hover:underline"
+          style={{ color: 'var(--el-muted)' }}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           เลือกประเภทอื่น
         </button>
-        <h2 className="text-xl font-bold text-gray-900">{selected?.name}</h2>
-        <p className="text-sm text-gray-400 mt-0.5">{selected?.description}</p>
+        <h2 className="text-[32px] font-bold text-[#0a0d2e]">{selected?.name}</h2>
+        <p className="text-[18px] text-[#6b7390] mt-1">{selected?.description}</p>
       </div>
 
       {/* Approval steps preview */}
-      <div className="mb-5 rounded-2xl p-4" style={{ background: 'linear-gradient(135deg,#f5f3ff,#eff6ff)' }}>
-        <p className="text-xs font-semibold text-purple-600 mb-2 uppercase tracking-wide">ขั้นตอนการอนุมัติ</p>
+      <div className="mb-5 rounded-2xl p-4" style={{ background: 'var(--el-pink-soft)' }}>
+        <p className="el-eyebrow mb-2">ขั้นตอนการอนุมัติ</p>
         <div className="flex flex-wrap gap-2 items-center">
           {selected?.steps?.map((s, i) => (
-            <div key={s.id} className="flex items-center gap-1.5 text-xs text-purple-800">
-              {i > 0 && <svg className="w-3 h-3 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>}
-              <span className="bg-white px-2.5 py-1 rounded-lg border border-purple-100 shadow-sm">{s.name}</span>
+            <div key={s.id} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--el-ink)' }}>
+              {i > 0 && <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                style={{ color: 'var(--el-muted)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>}
+              <span className="bg-white px-2.5 py-1 rounded-lg border font-medium"
+                style={{ borderColor: 'var(--el-line)', color: 'var(--el-ink)' }}>{s.name}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+      <div className="el-card p-6 space-y-5">
         {/* Title */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-            ชื่อเรื่อง <span className="text-red-500">*</span>
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--el-ink)' }}>
+            ชื่อเรื่อง <span style={{ color: 'var(--el-pink)' }}>*</span>
           </label>
-          <input type="text" required value={title} onChange={e => setTitle(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent" />
+          <input type="text" required value={title} onChange={e => setTitle(e.target.value)} className="el-input" />
         </div>
 
         {/* Dynamic fields */}
         {selected?.fields?.map(field => (
           <div key={field.id}>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+            <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--el-ink)' }}>
+              {field.label} {field.required && <span style={{ color: 'var(--el-pink)' }}>*</span>}
             </label>
             <DynamicField field={field} value={formData[field.id]} onChange={v => handleFieldChange(field.id, v)} />
           </div>
         ))}
 
-        {/* ── File Attachments ── */}
+        {/* File Attachments */}
         <div className="pt-1">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold" style={{ color: 'var(--el-ink)' }}>
               ไฟล์แนบ
-              {files.length > 0 && <span className="ml-1.5 text-xs font-normal text-gray-400">({files.length} ไฟล์)</span>}
+              {files.length > 0 && <span className="ml-1.5 text-xs font-normal" style={{ color: 'var(--el-muted)' }}>({files.length} ไฟล์)</span>}
             </label>
             <button type="button" onClick={() => fileInputRef.current.click()}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-dashed border-gray-300 text-gray-500 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors">
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-dashed transition-colors"
+              style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--el-pink)'; e.currentTarget.style.color = 'var(--el-pink)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--el-line)'; e.currentTarget.style.color = 'var(--el-muted)' }}>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
@@ -218,7 +230,10 @@ export default function NewRequestPage() {
 
           {files.length === 0 ? (
             <button type="button" onClick={() => fileInputRef.current.click()}
-              className="w-full py-6 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-purple-300 hover:text-purple-500 hover:bg-purple-50/30 transition-colors flex flex-col items-center gap-2">
+              className="w-full py-6 border-2 border-dashed rounded-xl text-sm flex flex-col items-center gap-2 transition-colors"
+              style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--el-pink)'; e.currentTarget.style.color = 'var(--el-pink)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--el-line)'; e.currentTarget.style.color = 'var(--el-muted)' }}>
               <svg className="w-8 h-8 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
@@ -227,14 +242,15 @@ export default function NewRequestPage() {
           ) : (
             <ul className="space-y-2">
               {files.map((f, idx) => (
-                <li key={idx} className="flex items-center gap-3 px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-100 group">
+                <li key={idx} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border group"
+                  style={{ background: 'var(--el-soft)', borderColor: 'var(--el-line)' }}>
                   <span className="text-xl flex-shrink-0">{fileIcon(f)}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{f.name}</p>
-                    <p className="text-xs text-gray-400">{formatSize(f.size)}</p>
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--el-ink)' }}>{f.name}</p>
+                    <p className="text-xs" style={{ color: 'var(--el-muted)' }}>{formatSize(f.size)}</p>
                   </div>
                   <button type="button" onClick={() => handleFileRemove(idx)}
-                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all p-1 rounded-lg hover:bg-red-50">
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all p-1 rounded-lg hover:bg-red-50">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -243,7 +259,8 @@ export default function NewRequestPage() {
               ))}
               <li>
                 <button type="button" onClick={() => fileInputRef.current.click()}
-                  className="w-full py-2 border border-dashed border-gray-200 rounded-xl text-xs text-gray-400 hover:border-purple-300 hover:text-purple-500 transition-colors">
+                  className="w-full py-2 border border-dashed rounded-xl text-xs transition-colors"
+                  style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)' }}>
                   + เพิ่มไฟล์อื่น
                 </button>
               </li>
@@ -254,13 +271,14 @@ export default function NewRequestPage() {
         {/* Buttons */}
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => handleSubmit(true)} disabled={submitting || !title}
-            className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors">
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors disabled:opacity-50"
+            style={{ borderColor: 'var(--el-line)', color: 'var(--el-muted)', background: 'white' }}>
             บันทึก Draft
           </button>
           <button type="button" onClick={() => handleSubmit(false)} disabled={submitting || !title}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-            style={{ background: submitting ? '#94a3b8' : 'linear-gradient(135deg,#845EC2,#2C73D2)' }}>
-            {submitting ? submitProgress || 'กำลังส่ง...' : `ส่งคำขอ${files.length > 0 ? ` (${files.length} ไฟล์)` : ''}`}
+            className="flex-1 el-btn-primary justify-center disabled:opacity-50"
+            style={{ height: '46px', flex: 1 }}>
+            {submitting ? (submitProgress || 'กำลังส่ง...') : `ส่งคำขอ${files.length > 0 ? ` (${files.length} ไฟล์)` : ''}`}
           </button>
         </div>
       </div>

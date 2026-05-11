@@ -10,6 +10,7 @@ import ApprovalsPage from './pages/ApprovalsPage'
 import TemplatesPage from './pages/admin/TemplatesPage'
 import UsersPage from './pages/admin/UsersPage'
 import SettingsPage from './pages/admin/SettingsPage'
+import ReportsPage from './pages/admin/ReportsPage'
 import ProfilePage from './pages/ProfilePage'
 
 function PrivateRoute({ children, adminOnly = false }) {
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/admin/templates" element={<PrivateRoute adminOnly><TemplatesPage /></PrivateRoute>} />
             <Route path="/admin/users" element={<PrivateRoute adminOnly><UsersPage /></PrivateRoute>} />
             <Route path="/admin/settings" element={<PrivateRoute adminOnly><SettingsPage /></PrivateRoute>} />
+            <Route path="/admin/reports" element={<PrivateRoute adminOnly><ReportsPage /></PrivateRoute>} />
           </Route>
         </Routes>
       </AuthProvider>

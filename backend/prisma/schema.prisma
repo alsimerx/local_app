@@ -8,22 +8,27 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         String   @default("requester")
-  department   String?
-  position     String?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               Int       @id @default(autoincrement())
+  name             String
+  email            String    @unique
+  passwordHash     String
+  role             String    @default("requester")
+  department       String?
+  position         String?
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  delegateToId     Int?
+  delegateFromDate DateTime?
+  delegateToDate   DateTime?
 
   requests              Request[]
   approvalSteps         ApprovalStep[]
   auditLogs             AuditLog[]
   templateStepApprovers TemplateStepApprover[]
   notifications         Notification[]
+  delegateTo            User?                  @relation("delegation", fields: [delegateToId], references: [id])
+  delegateFrom          User[]                 @relation("delegation")
 }
 
 model WorkflowTemplate {
@@ -57,6 +62,7 @@ model TemplateStep {
   templateId Int
   order      Int
   name       String
+  stepType   String @default("sequential")
 
   template      WorkflowTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
   approvers     TemplateStepApprover[]

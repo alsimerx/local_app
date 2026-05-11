@@ -107,6 +107,17 @@ async function main() {
     })
   }
 
+  // Default system settings
+  for (const [key, value] of [
+    ['orgName', 'Workflow'],
+    ['orgTagline', 'ระบบขออนุมัติเอกสาร'],
+    ['timezone', 'Asia/Bangkok'],
+    ['reminder_enabled', 'false'],
+    ['reminder_days', '3'],
+  ]) {
+    await prisma.systemSetting.upsert({ where: { key }, update: {}, create: { key, value } })
+  }
+
   console.log('✅ Seed completed')
   console.log('Accounts:')
   console.log('  admin@company.com / admin123 (admin)')

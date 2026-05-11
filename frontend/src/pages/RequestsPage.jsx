@@ -52,18 +52,19 @@ export default function RequestsPage() {
   const colSpan = isAdmin ? 6 : 5
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 lg:p-8 max-w-6xl mx-auto">
+      <div className="flex items-start justify-between mb-7">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">
+          <p className="el-eyebrow">{isAdmin ? 'Admin' : 'Requests'}</p>
+          <h2 className="text-[32px] font-bold text-[#0a0d2e]">
             {isAdmin ? 'คำขอทั้งหมดในระบบ' : 'คำขอของฉัน'}
           </h2>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-[18px] text-[#6b7390] mt-1">
             {isAdmin ? `ทั้งหมด ${total} รายการ` : 'รายการคำขออนุมัติทั้งหมดของคุณ'}
           </p>
         </div>
         {!isAdmin && (
-          <Link to="/requests/new" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+          <Link to="/requests/new" className="el-btn-primary">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             สร้างคำขอใหม่
           </Link>
@@ -71,18 +72,19 @@ export default function RequestsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-5 flex-wrap">
+      <div className="flex gap-3 mb-5 flex-wrap items-center">
         <input
           type="text"
           placeholder={isAdmin ? 'ค้นหาชื่อ, เลขที่คำขอ, หรือผู้สร้าง...' : 'ค้นหาชื่อหรือเลขที่คำขอ...'}
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1) }}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-72"
+          className="el-input w-72"
+          style={{ height: '36px', fontSize: '14px', padding: '0 12px' }}
         />
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap">
           {STATUSES.map(s => (
             <button key={s.value} onClick={() => { setStatus(s.value); setPage(1) }}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${status === s.value ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+              className={`el-chip ${status === s.value ? 'active' : ''}`}>
               {s.label}
             </button>
           ))}
@@ -90,47 +92,47 @@ export default function RequestsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="el-card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-3 font-medium text-gray-600">เลขที่คำขอ</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600">ชื่อเรื่อง</th>
-              {isAdmin && <th className="text-left px-5 py-3 font-medium text-gray-600">ผู้สร้าง</th>}
-              <th className="text-left px-5 py-3 font-medium text-gray-600">ประเภท</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600">สถานะ</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600">วันที่สร้าง</th>
+            <tr style={{ borderBottom: '1px solid var(--el-line)', background: 'var(--el-soft)' }}>
+              <th className="text-left px-5 py-3 font-semibold text-xs" style={{ color: 'var(--el-muted)' }}>เลขที่คำขอ</th>
+              <th className="text-left px-5 py-3 font-semibold text-xs" style={{ color: 'var(--el-muted)' }}>ชื่อเรื่อง</th>
+              {isAdmin && <th className="text-left px-5 py-3 font-semibold text-xs" style={{ color: 'var(--el-muted)' }}>ผู้สร้าง</th>}
+              <th className="text-left px-5 py-3 font-semibold text-xs" style={{ color: 'var(--el-muted)' }}>ประเภท</th>
+              <th className="text-left px-5 py-3 font-semibold text-xs" style={{ color: 'var(--el-muted)' }}>สถานะ</th>
+              <th className="text-left px-5 py-3 font-semibold text-xs" style={{ color: 'var(--el-muted)' }}>วันที่สร้าง</th>
               {isAdmin && <th className="px-5 py-3" />}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody>
             {loading && (
-              <tr><td colSpan={colSpan} className="text-center py-12 text-gray-400">กำลังโหลด...</td></tr>
+              <tr><td colSpan={colSpan} className="text-center py-12" style={{ color: 'var(--el-muted)' }}>กำลังโหลด...</td></tr>
             )}
             {!loading && requests.length === 0 && (
-              <tr><td colSpan={colSpan} className="text-center py-12 text-gray-400">ไม่พบคำขอ</td></tr>
+              <tr><td colSpan={colSpan} className="text-center py-12" style={{ color: 'var(--el-muted)' }}>ไม่พบคำขอ</td></tr>
             )}
             {requests.map(r => (
-              <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+              <tr key={r.id} className="hover:bg-el-soft transition-colors" style={{ borderTop: '1px solid var(--el-line)' }}>
                 <td className="px-5 py-3">
-                  <Link to={`/requests/${r.id}`} className="text-blue-600 hover:underline font-mono text-xs">{r.requestNumber}</Link>
+                  <Link to={`/requests/${r.id}`} className="font-mono text-xs font-semibold" style={{ color: 'var(--el-pink)' }}>{r.requestNumber}</Link>
                 </td>
                 <td className="px-5 py-3">
-                  <Link to={`/requests/${r.id}`} className="font-medium text-gray-900 hover:text-blue-600">{r.title}</Link>
+                  <Link to={`/requests/${r.id}`} className="font-medium hover:underline" style={{ color: 'var(--el-ink)' }}>{r.title}</Link>
                 </td>
                 {isAdmin && (
                   <td className="px-5 py-3">
-                    <p className="text-gray-700 text-xs font-medium">{r.requester?.name}</p>
-                    {r.requester?.department && <p className="text-gray-400 text-xs">{r.requester.department}</p>}
+                    <p className="font-medium text-xs" style={{ color: 'var(--el-ink)' }}>{r.requester?.name}</p>
+                    {r.requester?.department && <p className="text-xs" style={{ color: 'var(--el-muted)' }}>{r.requester.department}</p>}
                   </td>
                 )}
-                <td className="px-5 py-3 text-gray-500">{r.template?.name}</td>
+                <td className="px-5 py-3 text-xs" style={{ color: 'var(--el-muted)' }}>{r.template?.name}</td>
                 <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
-                <td className="px-5 py-3 text-gray-400 text-xs">{dayjs(r.createdAt).format('D/M/YYYY HH:mm')}</td>
+                <td className="px-5 py-3 text-xs" style={{ color: 'var(--el-muted)' }}>{dayjs(r.createdAt).format('D/M/YYYY HH:mm')}</td>
                 {isAdmin && (
                   <td className="px-5 py-3 text-right">
                     <button onClick={() => handleDelete(r)}
-                      className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                      className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
                       ลบ
                     </button>
                   </td>
@@ -141,16 +143,18 @@ export default function RequestsPage() {
         </table>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
-            <p className="text-sm text-gray-500">ทั้งหมด {total} รายการ</p>
+          <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid var(--el-line)' }}>
+            <p className="text-sm" style={{ color: 'var(--el-muted)' }}>ทั้งหมด {total} รายการ</p>
             <div className="flex gap-1">
               <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
-                className="px-3 py-1.5 border border-gray-200 rounded text-sm disabled:opacity-40 hover:bg-gray-50">
+                className="px-3 py-1.5 border border-el-line rounded-lg text-sm disabled:opacity-40 hover:bg-el-soft transition-colors"
+                style={{ color: 'var(--el-muted)' }}>
                 ก่อนหน้า
               </button>
-              <span className="px-3 py-1.5 text-sm text-gray-600">หน้า {page}/{totalPages}</span>
+              <span className="px-3 py-1.5 text-sm" style={{ color: 'var(--el-ink)' }}>หน้า {page}/{totalPages}</span>
               <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}
-                className="px-3 py-1.5 border border-gray-200 rounded text-sm disabled:opacity-40 hover:bg-gray-50">
+                className="px-3 py-1.5 border border-el-line rounded-lg text-sm disabled:opacity-40 hover:bg-el-soft transition-colors"
+                style={{ color: 'var(--el-muted)' }}>
                 ถัดไป
               </button>
             </div>
