@@ -93,6 +93,19 @@ export default function LoginPage() {
       {/* ── top bar ── */}
       <header className="relative z-10 flex items-center justify-between px-6 lg:px-10 py-5">
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            style={{ color: 'rgba(255,255,255,0.75)', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = '#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)' }}
+          >
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            หน้าหลัก
+          </button>
+          <div className="w-px h-5 bg-white/10" />
           <div className="w-9 h-9 rounded-full overflow-hidden bg-white p-0.5 shadow-lg">
             <img src="/logo.jpg" alt="" className="w-full h-full object-contain" onError={e => (e.currentTarget.style.display = 'none')} />
           </div>

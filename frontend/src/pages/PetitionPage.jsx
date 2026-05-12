@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { fileBaseURL } from '../lib/axios'
 import dayjs from 'dayjs'
@@ -22,6 +23,7 @@ const STATUS_LABEL = {
 }
 
 export default function PetitionPage() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState('form') // 'form' | 'track'
   const [form, setForm] = useState({ petitionerName: '', petitionerPhone: '', type: '', detail: '', location: '' })
   const [loading, setLoading] = useState(false)
@@ -74,7 +76,20 @@ export default function PetitionPage() {
     }}>
       {/* Header */}
       <header className="px-5 py-4 flex items-center justify-between border-b border-white/[0.06]">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            style={{ color: 'rgba(255,255,255,0.75)', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = '#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)' }}
+          >
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            หน้าหลัก
+          </button>
+          <div className="w-px h-5 bg-white/10" />
           <img src="/logo.jpg" alt="" className="w-9 h-9 rounded-full object-contain bg-white p-0.5"
             onError={e => (e.currentTarget.style.display = 'none')} />
           <div>
