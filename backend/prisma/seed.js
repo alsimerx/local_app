@@ -107,6 +107,36 @@ async function main() {
     })
   }
 
+  // System user for public petitions
+  await prisma.user.upsert({
+    where: { email: 'system.petition@internal' },
+    update: {},
+    create: { name: 'ระบบรับเรื่องประชาชน', email: 'system.petition@internal', passwordHash: 'SYSTEM_NO_LOGIN', role: 'requester', department: 'System', position: 'System' },
+  })
+
+  // Public petition template
+  if (!await prisma.workflowTemplate.findFirst({ where: { name: 'คำร้องทั่วไป (ประชาชน)' } })) {
+    await prisma.workflowTemplate.create({
+      data: {
+        name: 'คำร้องทั่วไป (ประชาชน)',
+        description: 'คำร้องจากประชาชนทั่วไป',
+        category: 'Public',
+        fields: {
+          create: [
+            { label: 'ประเภทคำร้อง', fieldType: 'dropdown', required: true, options: JSON.stringify(['แจ้งซ่อมถนน / ไฟฟ้า / ประปา', 'ขอเอกสาร / หนังสือรับรอง', 'ร้องเรียน / ข้อเสนอแนะ', 'ขอรับสวัสดิการ / เงินช่วยเหลือ', 'อื่นๆ']), order: 1 },
+            { label: 'รายละเอียด', fieldType: 'textarea', required: true, order: 2 },
+            { label: 'สถานที่ / ที่อยู่ที่เกี่ยวข้อง', fieldType: 'text', required: false, order: 3 },
+          ],
+        },
+        steps: {
+          create: [
+            { order: 1, name: 'รับเรื่องและดำเนินการ', approvers: { create: [{ userId: manager.id }] } },
+          ],
+        },
+      },
+    })
+  }
+
   // Default system settings
   for (const [key, value] of [
     ['orgName', 'Workflow'],

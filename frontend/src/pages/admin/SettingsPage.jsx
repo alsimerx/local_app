@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
-import api from '../../lib/axios'
+import api, { fileBaseURL } from '../../lib/axios'
+
+const toFullUrl = (path) => path?.startsWith('/uploads/') ? `${fileBaseURL}${path}` : (path || '')
 import { useSettings } from '../../context/SettingsContext'
 
 const TIMEZONES = [
@@ -77,7 +79,7 @@ export default function SettingsPage() {
       const fd = new FormData()
       fd.append('logo', file)
       const r = await api.post('/settings/logo', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      setSettings(s => ({ ...s, orgLogo: r.data.orgLogo }))
+      setSettings(s => ({ ...s, orgLogo: toFullUrl(r.data.orgLogo) }))
       setLogoMsg({ type: 'success', text: 'อัปโหลดโลโก้เรียบร้อยแล้ว' })
     } catch (err) {
       setLogoMsg({ type: 'error', text: 'อัปโหลดไม่สำเร็จ' })

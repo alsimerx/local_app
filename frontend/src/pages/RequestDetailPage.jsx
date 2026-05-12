@@ -328,6 +328,31 @@ export default function RequestDetailPage() {
 
       <div id="pdf-export-area" className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
+          {/* Petitioner info (public petitions) */}
+          {(request.petitionerName || request.petitionerPhone) && (
+            <div className="el-card p-5" style={{ borderColor: 'rgba(0,224,255,0.25)' }}>
+              <h3 className="el-section-title mb-3">ข้อมูลผู้ยื่นคำร้อง</h3>
+              <dl className="space-y-2">
+                {request.petitionerName && (
+                  <div className="grid grid-cols-3 gap-2">
+                    <dt className="text-sm text-gray-500">ชื่อ-นามสกุล</dt>
+                    <dd className="text-sm font-medium text-gray-900 col-span-2">{request.petitionerName}</dd>
+                  </div>
+                )}
+                {request.petitionerPhone && (
+                  <div className="grid grid-cols-3 gap-2">
+                    <dt className="text-sm text-gray-500">เบอร์โทรศัพท์</dt>
+                    <dd className="text-sm font-medium text-gray-900 col-span-2">
+                      <a href={`tel:${request.petitionerPhone}`} className="text-blue-600 hover:underline">
+                        {request.petitionerPhone}
+                      </a>
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          )}
+
           {/* Form Data */}
           <div className="el-card p-5">
             <h3 className="el-section-title mb-4">รายละเอียดคำขอ</h3>

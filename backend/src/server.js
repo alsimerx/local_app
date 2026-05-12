@@ -12,6 +12,7 @@ import userRoutes from './routes/users.js'
 import notificationRoutes from './routes/notifications.js'
 import settingsRoutes from './routes/settings.js'
 import reportsRoutes from './routes/reports.js'
+import publicRoutes from './routes/public.js'
 import { startReminderJob } from './services/reminderJob.js'
 import { errorHandler } from './middlewares/errorHandler.js'
 
@@ -37,6 +38,7 @@ app.use('/api/users', userRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/settings', settingsRoutes)
 app.use('/api/reports', reportsRoutes)
+app.use('/api/public', publicRoutes)
 
 app.use(errorHandler)
 

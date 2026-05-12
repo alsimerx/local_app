@@ -12,6 +12,8 @@ import UsersPage from './pages/admin/UsersPage'
 import SettingsPage from './pages/admin/SettingsPage'
 import ReportsPage from './pages/admin/ReportsPage'
 import ProfilePage from './pages/ProfilePage'
+import PetitionPage from './pages/PetitionPage'
+import LandingPage from './pages/LandingPage'
 
 function PrivateRoute({ children, adminOnly = false }) {
   const { user, loading } = useAuth()
@@ -27,7 +29,8 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/petition" element={<PetitionPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/requests" element={<RequestsPage />} />

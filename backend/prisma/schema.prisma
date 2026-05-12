@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -89,8 +89,10 @@ model Request {
   currentStep   Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  submittedAt   DateTime?
-  completedAt   DateTime?
+  submittedAt     DateTime?
+  completedAt     DateTime?
+  petitionerName  String?
+  petitionerPhone String?
 
   template      WorkflowTemplate    @relation(fields: [templateId], references: [id])
   requester     User                @relation(fields: [requesterId], references: [id])
